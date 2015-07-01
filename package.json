@@ -22,6 +22,8 @@
   },
   "homepage": "https://github.com/undoZen/baconflux#readme",
   "dependencies": {
-    "baconjs": "^0.7.65"
+    "baconjs": "^0.7",
+    "is-browser": "^2",
+    "lodash": "^3"
   }
 }
