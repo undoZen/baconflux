@@ -411,3 +411,4 @@ var Intercom = (function() {
 	Intercom.bindings.push(SocketBinding);
 	return Intercom;
 })();
+module.exports = Intercom.getInstance();

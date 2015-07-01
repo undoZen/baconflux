@@ -4,8 +4,7 @@ var Bacon = require('baconjs');
 var _ = require('lodash');
 var intercom;
 if (require('is-browser')) {
-    require('./intercom');
-    intercom = Intercom.getInstance();
+    intercom = require('./intercom');
 }
 
 var busCache = {};
