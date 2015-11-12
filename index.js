@@ -21,7 +21,7 @@ exports.bus = function () {
     if ((bus = busCache[busName])) {
         return bus;
     }
-    bus = busCache[busName] = new Bacon.Bus();
+    bus = new Bacon.Bus();
     if (busName.indexOf('store/') === 0) {
         var property = bus.toProperty();
         _.each('push end error plug'.split(' '), function (method) {
@@ -47,6 +47,7 @@ exports.bus = function () {
             }
         });
     }
+    busCache[busName] = bus;
     return bus;
 };
 function promiseOnly(obj) {
