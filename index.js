@@ -2,9 +2,10 @@
 
 var Bacon = require('baconjs');
 var _ = require('lodash');
-var intercom;
+var intercom, tabId;
 if (require('is-browser')) {
     intercom = require('./intercom');
+    tabId = Date.now() + Math.random().toString().substring(1);
 }
 
 var busCache = {};
@@ -27,21 +28,36 @@ exports.bus = function () {
             property[method] = bus[method].bind(bus);
         });
         bus = property;
+    } else if (busName.indexOf('async/') === 0) {
+        bus.toResolved = toResolvedLatest;
+        bus.toResolvedAll = toResolved;
     }
     bus.onValue(function (value) {
         bus.currentValue = value;
         if (intercom && value && value.syncAllTab === true && !value.syncedFromOtherTab) {
-            intercom.emit(busName, _.assign({}, value, {syncedFromOtherTab: true}));
+            intercom.emit(busName, _.assign({}, value, {syncedFromTab: tabId}));
         }
     });
     if (intercom) {
         intercom.on(busName, function (value) {
-            console.log(arguments);
-            bus.push(value);
+            if (value.syncedFromTab !== tabId) {
+                delete value.syncedFromTab;
+                value.syncedFromOtherTab = true;
+                bus.push(value);
+            }
         });
     }
     return bus;
 };
+function promiseOnly(obj) {
+    return obj && typeof obj.then === 'function';
+}
+function toResolved() {
+    return this.filter(promiseOnly).flatMap(Bacon.fromPromise);
+}
+function toResolvedLatest() {
+    return this.filter(promiseOnly).flatMapLatest(Bacon.fromPromise);
+}
 exports.action = exports.bus.bind(null, 'action');
 exports.async = exports.bus.bind(null, 'async');
 exports.store = exports.bus.bind(null, 'store');
