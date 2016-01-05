@@ -28,7 +28,7 @@ exports.bus = function () {
             property[method] = bus[method].bind(bus);
         });
         bus = property;
-    } else if (busName.indexOf('async/') === 0) {
+    } else if (busName.indexOf('async/') === 0 || busName.indexOf('astore/') === 0) {
         bus.toResolved = toResolvedLatest;
         bus.toResolvedAll = toResolved;
     }
@@ -54,11 +54,12 @@ function promiseOnly(obj) {
     return obj && typeof obj.then === 'function';
 }
 function toResolved() {
-    return this.filter(promiseOnly).flatMap(Bacon.fromPromise);
+    return this.filter(promiseOnly).flatMap(Bacon.fromPromise).toProperty();
 }
 function toResolvedLatest() {
-    return this.filter(promiseOnly).flatMapLatest(Bacon.fromPromise);
+    return this.filter(promiseOnly).flatMapLatest(Bacon.fromPromise).toProperty();
 }
 exports.action = exports.bus.bind(null, 'action');
-exports.async = exports.bus.bind(null, 'async');
+exports.astore = exports.bus.bind(null, 'astore');
+exports.async = exports.astore;
 exports.store = exports.bus.bind(null, 'store');
